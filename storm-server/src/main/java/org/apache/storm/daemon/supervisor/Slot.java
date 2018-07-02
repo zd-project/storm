@@ -780,6 +780,9 @@ public class Slot extends Thread implements AutoCloseable, BlobChangingCallback 
     }
 
     static DynamicState handleEmpty(DynamicState dynamicState, StaticState staticState) throws InterruptedException, IOException {
+        //Wrong assertion here? conflicting with drainAllChangingBlobs call below.
+        // When entering from handleWaitingForBlobLocalization due to exceptions, state may not be free of
+        // changing blobs.
         assert dynamicState.changingBlobs.isEmpty();
         assert dynamicState.pendingChangingBlobsAssignment == null;
         if (!equivalent(dynamicState.newAssignment, dynamicState.currentAssignment)) {
