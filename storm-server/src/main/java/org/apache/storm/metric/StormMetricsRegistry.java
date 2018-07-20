@@ -12,6 +12,7 @@
 
 package org.apache.storm.metric;
 
+import com.codahale.metrics.ExponentiallyDecayingReservoir;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
 import com.codahale.metrics.Meter;
@@ -25,23 +26,33 @@ import org.apache.storm.daemon.metrics.reporters.PreparableReporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("unchecked")
-public class StormMetricsRegistry {
-    private static final MetricRegistry DEFAULT_REGISTRY = new MetricRegistry();
+public class StormMetricsRegistry extends MetricRegistry {
+    private static final StormMetricsRegistry DEFAULT_REGISTRY = new StormMetricsRegistry();
     private static final Logger LOG = LoggerFactory.getLogger(StormMetricsRegistry.class);
 
-    public static Meter registerMeter(final String name) {
-        return register(name, new Meter());
-    }
+    private StormMetricsRegistry() {/*Singleton pattern*/}
 
     public static <V> Gauge<V> registerGauge(final String name, final Gauge<V> gauge) {
-        return register(name, gauge);
+        return DEFAULT_REGISTRY.register(name, gauge);
+    }
+
+    public static Histogram registerHistogram(String name) {
+        return registerHistogram(name, new ExponentiallyDecayingReservoir());
     }
 
     public static Histogram registerHistogram(String name, Reservoir reservoir) {
-        return register(name, new Histogram(reservoir));
+        return DEFAULT_REGISTRY.register(name, new Histogram(reservoir));
     }
 
+    public static Meter registerMeter(String name) {
+        return DEFAULT_REGISTRY.register(name, new Meter());
+    }
+
+    /**
+     * Start metrics reporter with this metric registry.
+     *
+     * @param topoConf config that specifies reporter plugin
+     */
     public static void startMetricsReporters(Map<String, Object> topoConf) {
         for (PreparableReporter reporter : MetricsUtils.getPreparableReporters(topoConf)) {
             reporter.prepare(StormMetricsRegistry.DEFAULT_REGISTRY, topoConf);
@@ -50,19 +61,15 @@ public class StormMetricsRegistry {
         }
     }
 
-    private static <T extends Metric> T register(final String name, T metric) {
-        T ret;
-        try {
-            ret = DEFAULT_REGISTRY.register(name, metric);
-        } catch (IllegalArgumentException e) {
-            // swallow IllegalArgumentException when the metric exists already
-            ret = (T) DEFAULT_REGISTRY.getMetrics().get(name);
-            if (ret == null) {
-                throw e;
-            } else {
-                LOG.warn("Metric {} has already been registered", name);
-            }
+    @Override
+    //This is more similar to super#getOrAdd than super#register
+    public <T extends Metric> T register(final String name, T metric) throws IllegalArgumentException {
+        @SuppressWarnings("unchecked")
+        final T existing = (T) DEFAULT_REGISTRY.getMetrics().get(name);
+        if (metric.getClass().isInstance(existing)) {
+            LOG.warn("Metric {} has already been registered", name);
+            return existing;
         }
-        return ret;
+        return super.register(name, metric);
     }
 }
