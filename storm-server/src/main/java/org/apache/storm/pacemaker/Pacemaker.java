@@ -32,15 +32,18 @@ import org.apache.storm.utils.VersionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.storm.metric.StormMetricsRegistry.name;
+import static org.apache.storm.metric.StormMetricsRegistry.registerMeter;
+
 
 public class Pacemaker implements IServerMessageHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(Pacemaker.class);
-    private final static Meter meterSendPulseCount = StormMetricsRegistry.registerMeter("pacemaker:send-pulse-count");
-    private final static Meter meterTotalReceivedSize = StormMetricsRegistry.registerMeter("pacemaker:total-receive-size");
-    private final static Meter meterGetPulseCount = StormMetricsRegistry.registerMeter("pacemaker:get-pulse=count");
-    private final static Meter meterTotalSentSize = StormMetricsRegistry.registerMeter("pacemaker:total-sent-size");
-    private final static Histogram histogramHeartbeatSize = StormMetricsRegistry.registerHistogram("pacemaker:heartbeat-size");
+    private final static Meter meterSendPulseCount = registerMeter(name(Pacemaker.class, "send-pulse-count"));
+    private final static Meter meterTotalReceivedSize = registerMeter(name(Pacemaker.class, "total-receive-size"));
+    private final static Meter meterGetPulseCount = registerMeter(name(Pacemaker.class, "get-pulse=count"));
+    private final static Meter meterTotalSentSize = registerMeter(name(Pacemaker.class, "total-sent-size"));
+    private final static Histogram histogramHeartbeatSize = StormMetricsRegistry.registerHistogram(name(Pacemaker.class, "heartbeat-size"));
     private final Map<String, byte[]> heartbeats;
     private final Map<String, Object> conf;
 
@@ -48,7 +51,7 @@ public class Pacemaker implements IServerMessageHandler {
     public Pacemaker(Map<String, Object> conf) {
         heartbeats = new ConcurrentHashMap<>();
         this.conf = conf;
-        StormMetricsRegistry.registerGauge("pacemaker:size-total-keys", heartbeats::size);
+        StormMetricsRegistry.registerGauge(name(Pacemaker.class, "size-total-keys"), heartbeats::size);
         StormMetricsRegistry.startMetricsReporters(conf);
     }
 

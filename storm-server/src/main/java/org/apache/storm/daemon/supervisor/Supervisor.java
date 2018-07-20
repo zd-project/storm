@@ -77,7 +77,11 @@ import org.apache.storm.utils.WrappedNotAliveException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.storm.metric.StormMetricsRegistry.name;
+import static org.apache.storm.metric.StormMetricsRegistry.registerGauge;
+
 public class Supervisor implements DaemonCommon, AutoCloseable {
+    public static final Class<Supervisor> SUPERVISOR = Supervisor.class;
     private static final Logger LOG = LoggerFactory.getLogger(Supervisor.class);
     private final Map<String, Object> conf;
     private final IContext sharedContext;
@@ -311,7 +315,7 @@ public class Supervisor implements DaemonCommon, AutoCloseable {
             launch();
             Utils.addShutdownHookWithForceKillIn1Sec(this::close);
 
-            StormMetricsRegistry.registerGauge("supervisor:num-slots-used-gauge", () -> SupervisorUtils.supervisorWorkerIds(conf).size());
+            registerGauge(name(SUPERVISOR, "num-slots-used-gauge"), () -> SupervisorUtils.supervisorWorkerIds(conf).size());
             StormMetricsRegistry.startMetricsReporters(conf);
 
             // blocking call under the hood, must invoke after launch cause some services must be initialized

@@ -33,32 +33,33 @@ import org.apache.storm.thrift.TException;
 
 @Path("/drpc/")
 public class DRPCResource {
-    private static final Meter meterHttpRequests = StormMetricsRegistry.registerMeter("drpc:num-execute-http-requests");
+    private static final Meter meterHttpRequests = StormMetricsRegistry.registerMeter(
+        StormMetricsRegistry.name("drpc", "num-execute-http-requests"));
     private final DRPC drpc;
 
     public DRPCResource(DRPC drpc) {
         this.drpc = drpc;
     }
-    
+
     //TODO put in some better exception mapping...
     //TODO move populateContext to a filter...
     @POST
-    @Path("/{func}") 
+    @Path("/{func}")
     public String post(@PathParam("func") String func, String args, @Context HttpServletRequest request) throws TException {
         meterHttpRequests.mark();
         return drpc.executeBlocking(func, args);
     }
-    
+
     @GET
-    @Path("/{func}/{args}") 
+    @Path("/{func}/{args}")
     public String get(@PathParam("func") String func, @PathParam("args") String args,
                       @Context HttpServletRequest request) throws TException {
         meterHttpRequests.mark();
         return drpc.executeBlocking(func, args);
     }
-    
+
     @GET
-    @Path("/{func}") 
+    @Path("/{func}")
     public String get(@PathParam("func") String func, @Context HttpServletRequest request) throws TException {
         meterHttpRequests.mark();
         return drpc.executeBlocking(func, "");

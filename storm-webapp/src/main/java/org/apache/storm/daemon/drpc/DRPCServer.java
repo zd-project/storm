@@ -51,8 +51,9 @@ import org.slf4j.LoggerFactory;
 
 public class DRPCServer implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DRPCServer.class);
-    private static final Meter meterShutdownCalls = StormMetricsRegistry.registerMeter("drpc:num-shutdown-calls");
-   
+    private static final Meter meterShutdownCalls = StormMetricsRegistry.registerMeter(
+        StormMetricsRegistry.name("drpc", "num-shutdown-calls"));
+
     //TODO in the future this might be better in a common webapp location
 
     /**
@@ -66,7 +67,7 @@ public class DRPCServer implements AutoCloseable {
         ReqContextFilter filter = new ReqContextFilter(auth);
         context.addFilter(new FilterHolder(filter), "/*", EnumSet.allOf(DispatcherType.class));
     }
- 
+
     private static ThriftServer mkHandlerServer(final DistributedRPC.Iface service, Integer port, Map<String, Object> conf) {
         ThriftServer ret = null;
         if (port != null && port >= 0) {
@@ -80,7 +81,7 @@ public class DRPCServer implements AutoCloseable {
         return new ThriftServer(conf, new DistributedRPCInvocations.Processor<>(service),
                 ThriftConnectionType.DRPC_INVOCATIONS);
     }
-    
+
     private static Server mkHttpServer(Map<String, Object> conf, DRPC drpc) {
         Integer drpcHttpPort = (Integer) conf.get(DaemonConfig.DRPC_HTTP_PORT);
         Server ret = null;
@@ -105,10 +106,10 @@ public class DRPCServer implements AutoCloseable {
             //TODO a better way to do this would be great.
             DRPCApplication.setup(drpc);
             ret = UIHelpers.jettyCreateServer(drpcHttpPort, null, httpsPort);
-            
+
             UIHelpers.configSsl(ret, httpsPort, httpsKsPath, httpsKsPassword, httpsKsType, httpsKeyPassword,
                     httpsTsPath, httpsTsPassword, httpsTsType, httpsNeedClientAuth, httpsWantClientAuth);
-            
+
             ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
             context.setContextPath("/");
             ret.setHandler(context);
@@ -116,13 +117,13 @@ public class DRPCServer implements AutoCloseable {
             ServletHolder jerseyServlet = context.addServlet(ServletContainer.class, "/*");
             jerseyServlet.setInitOrder(1);
             jerseyServlet.setInitParameter("javax.ws.rs.Application", DRPCApplication.class.getName());
-            
+
             UIHelpers.configFilters(context, filterConfigurations);
             addRequestContextFilter(context, DaemonConfig.DRPC_HTTP_CREDS_PLUGIN, conf);
         }
         return ret;
     }
-    
+
     private final DRPC drpc;
     private final ThriftServer handlerServer;
     private final ThriftServer invokeServer;
@@ -146,17 +147,17 @@ public class DRPCServer implements AutoCloseable {
     void start() throws Exception {
         LOG.info("Starting Distributed RPC servers...");
         new Thread(() -> invokeServer.serve()).start();
-        
+
         if (httpServer != null) {
             httpServer.start();
         }
-        
+
         if (handlerServer != null) {
             handlerServerThread = new Thread(handlerServer::serve);
             handlerServerThread.start();
         }
     }
-    
+
     @VisibleForTesting
     void awaitTermination() throws InterruptedException {
         if (handlerServerThread != null) {
@@ -184,32 +185,32 @@ public class DRPCServer implements AutoCloseable {
             //if (httpServer != null) {
             //    httpServer.destroy();
             //}
-            
+
             drpc.close();
             closed = true;
         }
     }
-    
+
     /**
      * @return The port the DRPC handler server is listening on.
      */
     public int getDrpcPort() {
         return handlerServer.getPort();
     }
-    
+
     /**
      * @return The port the DRPC invoke server is listening on.
      */
     public int getDrpcInvokePort() {
         return invokeServer.getPort();
     }
-    
+
     /**
      * @return The port the HTTP server is listening on. Not available until {@link #start() } has run.
      */
     public int getHttpServerPort() {
         assert httpServer.getConnectors().length == 1;
-        
+
         return ((ServerConnector) (httpServer.getConnectors()[0])).getLocalPort();
     }
 

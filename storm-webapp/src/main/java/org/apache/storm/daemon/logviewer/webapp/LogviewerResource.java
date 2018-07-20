@@ -18,8 +18,10 @@
 
 package org.apache.storm.daemon.logviewer.webapp;
 
-import com.codahale.metrics.Meter;
+import static org.apache.storm.metric.StormMetricsRegistry.name;
+import static org.apache.storm.metric.StormMetricsRegistry.registerMeter;
 
+import com.codahale.metrics.Meter;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.Map;
@@ -38,7 +40,6 @@ import org.apache.storm.daemon.logviewer.handler.LogviewerLogDownloadHandler;
 import org.apache.storm.daemon.logviewer.handler.LogviewerLogPageHandler;
 import org.apache.storm.daemon.logviewer.handler.LogviewerLogSearchHandler;
 import org.apache.storm.daemon.logviewer.handler.LogviewerProfileHandler;
-import org.apache.storm.metric.StormMetricsRegistry;
 import org.apache.storm.security.auth.IHttpCredentialsPlugin;
 import org.apache.storm.ui.InvalidRequestException;
 import org.apache.storm.ui.UIHelpers;
@@ -52,14 +53,15 @@ import org.slf4j.LoggerFactory;
 public class LogviewerResource {
     private static final Logger LOG = LoggerFactory.getLogger(LogviewerResource.class);
 
-    private static final Meter meterLogPageHttpRequests = StormMetricsRegistry.registerMeter("logviewer:num-log-page-http-requests");
-    private static final Meter meterDaemonLogPageHttpRequests = StormMetricsRegistry.registerMeter(
-            "logviewer:num-daemonlog-page-http-requests");
-    private static final Meter meterDownloadLogFileHttpRequests = StormMetricsRegistry.registerMeter(
-            "logviewer:num-download-log-file-http-requests");
-    private static final Meter meterDownloadLogDaemonFileHttpRequests = StormMetricsRegistry.registerMeter(
-            "logviewer:num-download-log-daemon-file-http-requests");
-    private static final Meter meterListLogsHttpRequests = StormMetricsRegistry.registerMeter("logviewer:num-list-logs-http-requests");
+    private static final Meter meterLogPageHttpRequests = registerMeter(name("logviewer", "num-log-page-http-requests"));
+    private static final Meter meterDaemonLogPageHttpRequests = registerMeter(name(
+        "logviewer", "num-daemonlog-page-http-requests"));
+    private static final Meter meterDownloadLogFileHttpRequests = registerMeter(name(
+        "logviewer", "num-download-log-file-http-requests"));
+    private static final Meter meterDownloadLogDaemonFileHttpRequests = registerMeter(name(
+        "logviewer", "num-download-log-daemon-file-http-requests"));
+    private static final Meter meterListLogsHttpRequests = registerMeter(name("logviewer", "num-list-logs-http-requests"));
+
 
     private final LogviewerLogPageHandler logviewer;
     private final LogviewerProfileHandler profileHandler;

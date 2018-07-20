@@ -42,7 +42,6 @@ import org.apache.storm.generated.ProfileRequest;
 import org.apache.storm.generated.WorkerMetricList;
 import org.apache.storm.generated.WorkerMetricPoint;
 import org.apache.storm.generated.WorkerMetrics;
-import org.apache.storm.metric.StormMetricsRegistry;
 import org.apache.storm.metricstore.MetricException;
 import org.apache.storm.metricstore.WorkerMetricsProcessor;
 import org.apache.storm.utils.ConfigUtils;
@@ -53,6 +52,9 @@ import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
+
+import static org.apache.storm.metric.StormMetricsRegistry.name;
+import static org.apache.storm.metric.StormMetricsRegistry.registerGauge;
 
 /**
  * Represents a container that a worker will run in.
@@ -69,8 +71,7 @@ public abstract class Container implements Killable {
         new ConcurrentHashMap<>();
 
     static {
-        StormMetricsRegistry.registerGauge(
-            "supervisor:current-used-memory-mb",
+        registerGauge(name(Supervisor.SUPERVISOR, "current-used-memory-mb"),
             () -> {
                 Long val =
                     _usedMemory.values().stream().mapToLong((topoAndMem) -> topoAndMem.memory).sum();
@@ -80,8 +81,7 @@ public abstract class Container implements Killable {
                 }
                 return ret;
             });
-        StormMetricsRegistry.registerGauge(
-            "supervisor:current-reserved-memory-mb",
+        registerGauge(name(Supervisor.SUPERVISOR, "current-reserved-memory-mb"),
             () -> {
                 Long val =
                     _reservedMemory.values().stream().mapToLong((topoAndMem) -> topoAndMem.memory).sum();

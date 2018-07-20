@@ -21,6 +21,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Reservoir;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.storm.daemon.metrics.MetricsUtils;
 import org.apache.storm.daemon.metrics.reporters.PreparableReporter;
 import org.slf4j.Logger;
@@ -59,6 +60,15 @@ public class StormMetricsRegistry extends MetricRegistry {
             reporter.start();
             LOG.info("Started statistics report plugin...");
         }
+    }
+
+    public static String name(String prefix, String name) {
+        assert name != null;
+        return StringUtils.isEmpty(prefix) ? name : prefix + ':' + name;
+    }
+
+    public static String name(Class<?> klass, String names) {
+        return name(klass.getSimpleName().toLowerCase(), names);
     }
 
     @Override

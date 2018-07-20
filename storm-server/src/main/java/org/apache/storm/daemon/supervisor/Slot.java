@@ -53,10 +53,13 @@ import org.apache.storm.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.storm.daemon.supervisor.Supervisor.SUPERVISOR;
+import static org.apache.storm.metric.StormMetricsRegistry.name;
+
 public class Slot extends Thread implements AutoCloseable, BlobChangingCallback {
     private static final Logger LOG = LoggerFactory.getLogger(Slot.class);
     private static final Meter numWorkersLaunched =
-        StormMetricsRegistry.registerMeter("supervisor:num-workers-launched");
+        StormMetricsRegistry.registerMeter(name(SUPERVISOR, "num-workers-launched"));
 
     private enum KillReason {
         ASSIGNMENT_CHANGED, BLOB_CHANGED, PROCESS_EXIT, MEMORY_VIOLATION, HB_TIMEOUT, HB_NULL;
@@ -69,9 +72,9 @@ public class Slot extends Thread implements AutoCloseable, BlobChangingCallback 
     }
 
     private static final Map<KillReason, Meter> numWorkersKilledFor = EnumUtil.toEnumMap(KillReason.class,
-        killReason -> StormMetricsRegistry.registerMeter("supervisor:num-workers-killed-" + killReason.toString()));
+        killReason -> StormMetricsRegistry.registerMeter(name(SUPERVISOR, "num-workers-killed-" + killReason.toString())));
     private static final Meter numForceKill =
-        StormMetricsRegistry.registerMeter("supervisor:num-workers-force-kill");
+        StormMetricsRegistry.registerMeter(name(SUPERVISOR, "num-workers-force-kill"));
     private static final long ONE_SEC_IN_NANO = TimeUnit.NANOSECONDS.convert(1, TimeUnit.SECONDS);
     private final AtomicReference<LocalAssignment> newAssignment = new AtomicReference<>();
     private final AtomicReference<Set<TopoProfileAction>> profiling = new AtomicReference<>(new HashSet<>());

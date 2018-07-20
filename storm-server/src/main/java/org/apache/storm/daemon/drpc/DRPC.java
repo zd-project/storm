@@ -46,17 +46,19 @@ import org.apache.storm.utils.WrappedDRPCExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static org.apache.storm.metric.StormMetricsRegistry.name;
+
 public class DRPC implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(DRPC.class);
     private static final DRPCRequest NOTHING_REQUEST = new DRPCRequest("", "");
     private static final DRPCExecutionException TIMED_OUT = new WrappedDRPCExecutionException("Timed Out");
     private static final DRPCExecutionException SHUT_DOWN = new WrappedDRPCExecutionException("Server Shutting Down");
     private static final DRPCExecutionException DEFAULT_FAILED = new WrappedDRPCExecutionException("Request failed");
-    private static final Meter meterServerTimedOut = StormMetricsRegistry.registerMeter("drpc:num-server-timedout-requests");
-    private static final Meter meterExecuteCalls = StormMetricsRegistry.registerMeter("drpc:num-execute-calls");
-    private static final Meter meterResultCalls = StormMetricsRegistry.registerMeter("drpc:num-result-calls");
-    private static final Meter meterFailRequestCalls = StormMetricsRegistry.registerMeter("drpc:num-failRequest-calls");
-    private static final Meter meterFetchRequestCalls = StormMetricsRegistry.registerMeter("drpc:num-fetchRequest-calls");
+    private static final Meter meterServerTimedOut = StormMetricsRegistry.registerMeter(name(DRPC.class, "num-server-timedout-requests"));
+    private static final Meter meterExecuteCalls = StormMetricsRegistry.registerMeter(name(DRPC.class, "num-execute-calls"));
+    private static final Meter meterResultCalls = StormMetricsRegistry.registerMeter(name(DRPC.class, "num-result-calls"));
+    private static final Meter meterFailRequestCalls = StormMetricsRegistry.registerMeter(name(DRPC.class, "num-failRequest-calls"));
+    private static final Meter meterFetchRequestCalls = StormMetricsRegistry.registerMeter(name(DRPC.class, "num-fetchRequest-calls"));
 
     static {
         TIMED_OUT.set_type(DRPCExceptionType.SERVER_TIMEOUT);

@@ -39,7 +39,7 @@ public class MetricsCleaner implements Runnable, AutoCloseable {
         }
         this.failureMeter = failureMeter;
 
-        StormMetricsRegistry.registerGauge("MetricsCleaner:purgeTimestamp", () -> purgeTimestamp);
+        StormMetricsRegistry.registerGauge(StormMetricsRegistry.name(MetricsCleaner.class, "purgeTimestamp"), () -> purgeTimestamp);
     }
 
     @Override
