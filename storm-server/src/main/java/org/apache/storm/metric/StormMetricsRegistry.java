@@ -49,7 +49,7 @@ public class StormMetricsRegistry extends MetricRegistry {
     }
 
     /**
-     * Start metrics reporter with this metric registry.
+     * Start metrics reporters for the registry singleton.
      *
      * @param topoConf config that specifies reporter plugin
      */
