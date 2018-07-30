@@ -64,12 +64,16 @@ public class StormMetricsRegistry extends MetricRegistry {
     @Override
     //This is more similar to super#getOrAdd than super#register
     public <T extends Metric> T register(final String name, T metric) throws IllegalArgumentException {
-        @SuppressWarnings("unchecked")
-        final T existing = (T) DEFAULT_REGISTRY.getMetrics().get(name);
-        if (metric.getClass().isInstance(existing)) {
-            LOG.warn("Metric {} has already been registered", name);
-            return existing;
+        try {
+            return super.register(name, metric);
+        } catch (IllegalArgumentException e) {
+            @SuppressWarnings("unchecked")
+            final T existing = (T) DEFAULT_REGISTRY.getMetrics().get(name);
+            if (metric.getClass().isInstance(existing)) {
+                LOG.warn("Metric {} has already been registered", name);
+                return existing;
+            }
+            throw e;
         }
-        return super.register(name, metric);
     }
 }
