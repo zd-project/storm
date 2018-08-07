@@ -487,7 +487,7 @@ public class Nimbus implements Iface, Shutdownable, DaemonCommon {
             .newInstance((String) conf.getOrDefault(DaemonConfig.NIMBUS_TOPOLOGY_VALIDATOR, DefaultTopologyValidator.class.getName()));
         this.timer = new StormTimer(null, (t, e) -> {
             LOG.error("Error while processing event", e);
-            Utils.exitProcess(20, "Error while processing event");
+            Utils.exitProcess(201, "Error while processing event");
         });
         this.underlyingScheduler = makeScheduler(conf, inimbus);
         this.scheduler = wrapAsBlacklistScheduler(conf, underlyingScheduler);

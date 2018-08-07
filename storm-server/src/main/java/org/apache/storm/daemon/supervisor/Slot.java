@@ -949,7 +949,7 @@ public class Slot extends Thread implements AutoCloseable, BlobChangingCallback 
         } catch (Throwable e) {
             if (!Utils.exceptionCauseIsInstanceOf(InterruptedException.class, e)) {
                 LOG.error("Error when processing event", e);
-                Utils.exitProcess(20, "Error when processing an event");
+                Utils.exitProcess(207, "Error when processing an event");
             }
         }
     }

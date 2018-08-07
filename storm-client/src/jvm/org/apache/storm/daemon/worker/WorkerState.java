@@ -692,7 +692,7 @@ public class WorkerState {
     private StormTimer mkHaltingTimer(String name) {
         return new StormTimer(name, (thread, exception) -> {
             LOG.error("Error when processing event", exception);
-            Utils.exitProcess(20, "Error when processing an event");
+            Utils.exitProcess(205, "Error when processing an event");
         });
     }
 

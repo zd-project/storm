@@ -648,7 +648,7 @@ public class AsyncLocalizer implements AutoCloseable {
             LOG.error("AsyncLocalizer cleanup failure", ex);
         } catch (Error error) {
             LOG.error("AsyncLocalizer cleanup failure", error);
-            Utils.exitProcess(20, "AsyncLocalizer cleanup failure");
+            Utils.exitProcess(200, "AsyncLocalizer cleanup failure");
         }
     }
 

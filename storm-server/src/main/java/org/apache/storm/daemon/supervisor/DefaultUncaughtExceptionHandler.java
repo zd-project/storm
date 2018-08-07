@@ -21,7 +21,7 @@ public class DefaultUncaughtExceptionHandler implements Thread.UncaughtException
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
-        LOG.error("Error when processing event", e);
-        Utils.exitProcess(20, "Error when processing an event");
+        LOG.error("Error when processing event on thread " + t.toString(), e);
+        Utils.exitProcess(202, "Error when processing an event");
     }
 }

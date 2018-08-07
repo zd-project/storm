@@ -57,7 +57,7 @@ public class EventManagerImp implements EventManager {
                             LOG.info("Event manager interrupted");
                         } else {
                             LOG.error("{} Error when processing event", t);
-                            Utils.exitProcess(20, "Error when processing an event");
+                            Utils.exitProcess(209, "Error when processing an event");
                         }
                     }
                 }

@@ -470,6 +470,7 @@ public class Utils {
 
     public static void exitProcess(int val, String msg) {
         String combinedErrorMessage = "Halting process: " + msg;
+        LOG.error("val {}", val);
         LOG.error(combinedErrorMessage, new RuntimeException(combinedErrorMessage));
         Runtime.getRuntime().exit(val);
     }
